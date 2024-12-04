@@ -1,8 +1,4 @@
-import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-
-
-    
-        
+import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";        
 // Создайте экземпляр класса `Bot` и передайте ему токен вашего бота.
 // Токен и адрес бэкенда мы спрячем, чтобы никто не смог воспользоваться нашим ботом или взломать нас. Получим их из файла .env (или из настроек в Deno Deploy)
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // export нужен, чтобы воспользоваться ботом в другом файле
