@@ -4,7 +4,7 @@ class TelegramBot {
     private bot: Bot;
 
     constructor(token: string) {
-        this.bot = new Bot(7371466627:AAGop9AjkCPT5s9YQPk4_MsCfEfX_sLEjSc);
+        this.bot = new Bot(token);
         this.initialize();
     }
 
