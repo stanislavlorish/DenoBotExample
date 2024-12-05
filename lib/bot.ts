@@ -10,13 +10,16 @@ interface UserInfo {
 
 const users: UserInfo[] = []; // Массив для хранения пользователей
 
+// Клавиатура будет отправлять в бота команду /about
+const keyboard = new InlineKeyboard().text("Обо мне", "/about");
+
 // Обработайте команду /start.
 bot.command("start", async (ctx) => {
     await ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard });
     await ctx.reply("Напишите свои интересы и город в формате: 'интересы, город'");
 });
 
-// Обработайте другие сообщения.
+// Обработайте сообщения от пользователей.
 bot.on("message", async (ctx) => {
     const [interests, city] = ctx.message.text.split(",").map((s) => s.trim());
 
@@ -40,10 +43,6 @@ bot.on("message", async (ctx) => {
         await ctx.reply("Спасибо! Мы сохранили ваши интересы.");
     }
 });
-
-// Клавиатура будет отправлять в бота команду /about
-const keyboard = new InlineKeyboard()
-    .text("Обо мне", "/about");
 
 bot.callbackQuery("/about", async (ctx) => {
     await ctx.answerCallbackQuery();
