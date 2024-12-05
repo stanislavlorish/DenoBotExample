@@ -1,37 +1,60 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
-const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // Токен вашего бота
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
 
+// Хранилище пользователей и их интересов
+const users = new Map();
+
+// Клавиатура для команды /about
 const keyboard = new InlineKeyboard()
-    .text("Обо мне", "/about")
-    .text("Интересы", "/interests");
+    .text("Обо мне", "/about");
 
 // Обработайте команду /start.
-bot.command("start", (ctx) => ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard }));
-
-// Обработайте команду /about
-bot.callbackQuery("/about", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
-    await ctx.reply("Я бот? Я бот... Я Бот!");
+bot.command("start", (ctx) => {
+    ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard });
+    ctx.reply("Пожалуйста, напишите свои интересы и город.");
 });
 
-// Обработка команды /interests
-bot.command("interests", async (ctx) => {
-    await ctx.reply("Напиши свой интерес:");
-});
+// Обработайте сообщения с интересами и городом.
+bot.on("message", async (ctx) => {
+    const userId = ctx.from.id;
 
-// Обработка сообщений
-bot.on("message", (ctx) => {
-    if (ctx.message.text && ctx.message.text !== "/interests" && !ctx.message.text.startsWith("Ваш интерес: ")) {
-        ctx.reply("Ваш интерес: " + ctx.message.text);
-    } else if (ctx.message.text === "/interests") {
-        ctx.reply("Напиши свой интерес:");
-    } else {
-        ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !");
+    // Сохраняем интересы и город пользователя
+    let userData = users.get(userId);
+    if (!userData) {
+        // Если пользователь еще не сохранялся, создаем новую запись
+        userData = { interests: '', city: '' };
+        users.set(userId, userData);
+    }
+
+    // Если интересы еще не были введены
+    if (!userData.interests) {
+        userData.interests = ctx.message.text;
+        await ctx.reply(`Вы написали интересы: ${userData.interests}. Теперь напишите свой город.`);
+    } else if (!userData.city) {
+        userData.city = ctx.message.text;
+        await ctx.reply(`Вы из города: ${userData.city}.`);
+
+        // Сравниваем с другими пользователями
+        const matches = Array.from(users.entries())
+            .filter(([id, data]) => id !== userId && data.city === userData.city && data.interests === userData.interests);
+
+        if (matches.length > 0) {
+            const matchedUsernames = matches.map(([id]) => `Пользователь ${id}`).join(', ');
+            await ctx.reply(`У вас есть совпадения с: ${matchedUsernames}. Хотите встретиться?`);
+        } else {
+            await ctx.reply("Совпадений не найдено.");
+        }
     }
 });
 
-// Запуск бота
-await bot.start();
+// Обработайте команду /about
+bot.callbackQuery("/about", async (ctx) => {
+    await ctx.answerCallbackQuery();
+    await ctx.reply("Я бот? Я бот... Я Бот!");
+});
+
+// Запустите бота
+bot.start();
 
 
