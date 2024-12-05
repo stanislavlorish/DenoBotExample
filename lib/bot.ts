@@ -44,7 +44,7 @@ bot.callbackQuery("/about", async (ctx) => {
 });
 
 // Запускаем бота
- bot.start(); 
+bot.start(); 
 
 
 
