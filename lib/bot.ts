@@ -1,64 +1,50 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { DB } from "https://deno.land/x/sqlite/mod.ts"; // Измените импорт на DB
 
-// Создайте экземпляр класса Bot и передайте ему токен вашего бота.
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); 
+export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
+const userInterests = new Map<string, string>(); // Храним интересы пользователей
 
-// Настройка базы данных
-const db = new DB('database.db'); // Используйте DB вместо Database
+// Обработайте команду /start.
+bot.command("start", (ctx) => 
+    ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard })
+);
 
-// Создаем таблицу, если она не существует
-db.execute(`CREATE TABLE IF NOT EXISTS interested_users (
-    user_id INTEGER,
-    message TEXT
-)`);
+// Обработайте команду /interested.
+bot.command("interested", (ctx) => {
+    ctx.reply("Напишите свой интерес, и я его запомню!");
+});
+
+// Обработка сообщений от пользователей для сохранения интересов
+bot.on("message", (ctx) => {
+    const userId = ctx.from?.id.toString();
+    
+    if (userId) {
+        // Если пользователь отправляет интерес
+        if (userInterests.has(userId)) {
+            const interest = ctx.message.text;
+            userInterests.set(userId, interest);
+            ctx.reply(`Ваш интерес "${interest}" сохранен!`);
+        }
+        // Если пользователь еще не отправил интерес
+        else {
+            ctx.reply("Пожалуйста, используйте команду /interested, чтобы начать.");
+            userInterests.set(userId, ''); // Запоминаем, что пользователь пожелал отправить интерес
+        }
+    } else {
+        ctx.reply("Не могу определить ваш ID.");
+    }
+});
 
 // Клавиатура будет отправлять в бота команду /about
 const keyboard = new InlineKeyboard()
     .text("Обо мне", "/about");
 
-// Обработайте команду /start
-bot.command("start", (ctx) => {
-    ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard });
-});
-
-// Обработка команды /interested
-bot.command("interested", async (ctx) => {
-    await ctx.reply("Напиши свои интересы:");
-    // Устанавливаем состояние ожидания введенного текста
-    ctx.session.state = "waiting_interests";
-});
-
-// Обработка других сообщений
-bot.on("message", async (ctx) => {
-    // Проверка состояния, если пользователь ждет ввода интересов
-    if (ctx.session.state === "waiting_interests") {
-        const userId = ctx.from?.id;
-        const userMessage = ctx.message.text;
-
-        // Запись в базу данных
-        db.execute('INSERT INTO interested_users (user_id, message) VALUES (?, ?)', 
-            [userId, userMessage]
-        );
-
-        await ctx.reply('Ваши интересы записаны: ' + userMessage);
-        ctx.session.state = null; // Сбрасываем состояние
-        return;
-    }
-
-    ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !");
-});
-
-// Обработка нажатия на кнопку "Обо мне"
 bot.callbackQuery("/about", async (ctx) => {
-    await ctx.answerCallbackQuery(); 
+    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
     await ctx.reply("Я бот? Я бот... Я Бот!");
 });
 
-// Запуск бота
+// Запускаем бота
 bot.start();
-console.log('Бот запущен!');
-
 
 
 
