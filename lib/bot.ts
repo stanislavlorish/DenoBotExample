@@ -1,11 +1,11 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
-import { Database } from "https://deno.land/x/sqlite/mod.ts";
+import { DB } from "https://deno.land/x/sqlite/mod.ts"; // Измените импорт на DB
 
 // Создайте экземпляр класса Bot и передайте ему токен вашего бота.
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); 
 
 // Настройка базы данных
-const db = new Database('database.db');
+const db = new DB('database.db'); // Используйте DB вместо Database
 
 // Создаем таблицу, если она не существует
 db.execute(`CREATE TABLE IF NOT EXISTS interested_users (
@@ -58,7 +58,6 @@ bot.callbackQuery("/about", async (ctx) => {
 // Запуск бота
 bot.start();
 console.log('Бот запущен!');
-
 
 
 
