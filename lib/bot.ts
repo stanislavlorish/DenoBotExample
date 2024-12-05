@@ -1,3 +1,4 @@
+
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // Токен вашего бота
@@ -24,12 +25,14 @@ bot.command("interests", async (ctx) => {
 bot.on("message", (ctx) => {
     if (ctx.message.text && ctx.message.text !== "/interests" && !ctx.message.text.startsWith("Ваш интерес: ")) {
         ctx.reply("Ваш интерес: " + ctx.message.text);
+    } else if (ctx.message.text === "/interests") {
+        ctx.reply("Напиши свой интерес:");
+    } else {
+        ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !");
     }
 });
 
-// Обработайте другие сообщения.
-bot.on("message", (ctx) => ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !"));
-
+// Запуск бота
 bot.start();
 
 
