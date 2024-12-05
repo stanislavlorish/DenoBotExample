@@ -22,7 +22,6 @@ bot.on("message", async (ctx) => {
     // Сохраняем интересы и город пользователя
     let userData = users.get(userId);
     if (!userData) {
-        // Если пользователь еще не сохранялся, создаем новую запись
         userData = { interests: '', city: '' };
         users.set(userId, userData);
     }
@@ -53,8 +52,4 @@ bot.callbackQuery("/about", async (ctx) => {
     await ctx.answerCallbackQuery();
     await ctx.reply("Я бот? Я бот... Я Бот!");
 });
-
-// Запустите бота
-bot.start();
-
 
