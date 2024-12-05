@@ -30,5 +30,7 @@ bot.on("message", (ctx) => {
 // Обработайте другие сообщения.
 bot.on("message", (ctx) => ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !"));
 
+bot.start();
+
 
 
