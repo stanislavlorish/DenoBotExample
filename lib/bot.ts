@@ -52,4 +52,6 @@ bot.callbackQuery("/about", async (ctx) => {
     await ctx.answerCallbackQuery();
     await ctx.reply("Я бот? Я бот... Я Бот!");
 });
+bot.start();
+console.log('Бот запущен!');
 
