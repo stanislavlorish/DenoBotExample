@@ -18,14 +18,14 @@ bot.on("message", (ctx) => {
     const userId = ctx.from?.id.toString();
     
     if (userId) {
-        // Если пользователь отправляет интерес
-        if (userInterests.has(userId)) {
+        // Проверяем, хранится ли интерес пользователя
+        if (userInterests.has(userId) && userInterests.get(userId) === '') {
             const interest = ctx.message.text;
             userInterests.set(userId, interest);
             ctx.reply(`Ваш интерес "${interest}" сохранен!`);
         }
         // Если пользователь еще не отправил интерес
-        else {
+        else if (!userInterests.has(userId)) {
             ctx.reply("Пожалуйста, используйте команду /interested, чтобы начать.");
             userInterests.set(userId, ''); // Запоминаем, что пользователь пожелал отправить интерес
         }
@@ -44,7 +44,7 @@ bot.callbackQuery("/about", async (ctx) => {
 });
 
 // Запускаем бота
-bot.start();
+await bot.start(); // Используем await для ожидания завершения запуска
 
 
 
