@@ -1,7 +1,6 @@
-
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
-export const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // Токен вашего бота
+const bot = new Bot(Deno.env.get("BOT_TOKEN") || ""); // Токен вашего бота
 
 const keyboard = new InlineKeyboard()
     .text("Обо мне", "/about")
@@ -21,7 +20,7 @@ bot.command("interests", async (ctx) => {
     await ctx.reply("Напиши свой интерес:");
 });
 
-// Обработка сообщений, полученных после команды /interests
+// Обработка сообщений
 bot.on("message", (ctx) => {
     if (ctx.message.text && ctx.message.text !== "/interests" && !ctx.message.text.startsWith("Ваш интерес: ")) {
         ctx.reply("Ваш интерес: " + ctx.message.text);
@@ -33,7 +32,6 @@ bot.on("message", (ctx) => {
 });
 
 // Запуск бота
-bot.start();
-
+await bot.start();
 
 
