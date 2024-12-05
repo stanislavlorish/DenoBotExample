@@ -1,51 +1,36 @@
 import { Bot, InlineKeyboard } from "https://deno.land/x/grammy@v1.32.0/mod.ts";
 
 export const bot = new Bot(Deno.env.get("BOT_TOKEN") || "");
-const userInterests = new Map<string, string>(); 
 
-
-bot.command("start", (ctx) => 
-    ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard })
-);
-
-
-bot.command("interested", (ctx) => {
-    ctx.reply("Напишите свой интерес, и я его запомню!");
-});
-
-
-bot.on("message", (ctx) => {
-    const userId = ctx.from?.id.toString();
-    
-    if (userId) {
-      
-        if (userInterests.has(userId) && userInterests.get(userId) === '') {
-            const interest = ctx.message.text;
-            userInterests.set(userId, interest);
-            ctx.reply(`Ваш интерес "${interest}" сохранен!`);
-        }
-      
-        else if (!userInterests.has(userId)) {
-            ctx.reply("Пожалуйста, используйте команду /interested, чтобы начать.");
-            userInterests.set(userId, ''); 
-        }
-    } else {
-        ctx.reply("Не могу определить ваш ID.");
-    }
-});
-
-// Клавиатура будет отправлять в бота команду /about
 const keyboard = new InlineKeyboard()
-    .text("Обо мне", "/about");
+    .text("Обо мне", "/about")
+    .text("Интересы", "/interests");
 
+bot.command("start", (ctx) => ctx.reply("Добро пожаловать. Запущен и работает!", { reply_markup: keyboard }));
+
+bot.on("message", (ctx) => ctx.reply("Получил ваше сообщение: " + ctx.message.text + " !"));
+
+// Обработка команды /about
 bot.callbackQuery("/about", async (ctx) => {
-    await ctx.answerCallbackQuery(); // Уведомляем Telegram, что мы обработали запрос
+    await ctx.answerCallbackQuery();
     await ctx.reply("Я бот? Я бот... Я Бот!");
 });
 
-// Запускаем бота
-bot.start(); 
+// Обработка команды /interests
+bot.command("interests", async (ctx) => {
+    await ctx.reply("Напиши свой интерес:");
+});
 
+// Обработка текстовых сообщений после команды /interests
+bot.on("message", (ctx) => {
+    if (ctx.message.text && ctx.message.text.startsWith("Интерес: ")) {
+        // Это сообщение уже обрабатывается для других случаев. Пропускаем его.
+        return;
+    }
+    
+    ctx.reply("Ваш интерес: " + ctx.message.text);
+});
+bot.start();
 
 
 
